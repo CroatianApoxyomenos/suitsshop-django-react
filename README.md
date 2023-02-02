@@ -1,1 +1,1 @@
-# suitsshop-django-react
+# suitshop-django-react
