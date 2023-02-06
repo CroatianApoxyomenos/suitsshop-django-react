@@ -8,6 +8,8 @@ from rest_framework.views import APIView
 from .serializers import UserSerializer, UserSerializerWithToken
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
+from .models import Product
+from .serializers import ProductSerializer
 # Create your views here.
 
 
@@ -56,3 +58,20 @@ class UserProfileViewSet(APIView):
         user = request.user
         serializer = UserSerializer(user, many=False)
         return Response(serializer.data)
+
+
+class ProductsViewSet(APIView):
+    def get(self, request):
+        queryset = Product.objects.all()
+        serializer = ProductSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class ProductViewSet(APIView):
+    def get(self, request, pk):
+        try:
+            product = Product.objects.get(id=pk)
+            serializer = ProductSerializer(product, many=False)
+            return Response(serializer.data)
+        except:
+            return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
