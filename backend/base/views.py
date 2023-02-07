@@ -46,7 +46,7 @@ class UserRegisterViewSet(APIView):
             )
             serializer = UserSerializerWithToken(user, many=False)
             return Response(serializer.data)
-        except:
+        except Exception as e:
             message = {'detail': 'A user with that username or email already exists'}
             return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
