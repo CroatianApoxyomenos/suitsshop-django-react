@@ -4,7 +4,7 @@ from .models import *
 
 admin.site.register(Product)
 admin.site.register(ShippingAddress)
-
+admin.site.register(CustomUser)
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):

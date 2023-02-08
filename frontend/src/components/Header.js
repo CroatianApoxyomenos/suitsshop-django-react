@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Nav, Navbar, Row } from "react-bootstrap";
+import { Container, Nav, Navbar } from "react-bootstrap";
 
 function Header() {
   return (
@@ -15,7 +15,7 @@ function Header() {
                 Cart
               </Nav.Link>
               <Nav.Link href="/login">
-                <i className="fas fa-user" />
+                <i className="fas fa-user-tie" />
                 Login
               </Nav.Link>
             </Nav>

@@ -1,9 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.contrib.auth.models import AbstractUser
 # Create your models here.
+
+
+class CustomUser(AbstractUser):
+    email = models.EmailField(unique=True)
 
 
 class Product(models.Model):
@@ -29,7 +32,7 @@ class Order(models.Model):
         (PAYPAL, 'PayPal'),
     ]
 
-    user = models.ForeignKey(User,on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
     payment_method = models.CharField(max_length=255, choices=PAYMENT_CHOICES, default=CREDIT_CARD)
     shipping_price = models.DecimalField(max_digits=7, decimal_places=2)
     total_price = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
@@ -66,6 +69,7 @@ class OrderItem(models.Model):
 
 
 class ShippingAddress(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     order = models.OneToOneField(Order, on_delete=models.CASCADE)
     address = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
