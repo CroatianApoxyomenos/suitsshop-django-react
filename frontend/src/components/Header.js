@@ -18,14 +18,18 @@ function Header() {
     <header>
       <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect>
         <Container>
-          <Navbar.Brand href="/">Suits Shop</Navbar.Brand>
+          <LinkContainer to="/">
+            <Navbar.Brand>SuitsShop</Navbar.Brand>
+          </LinkContainer>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="mr-auto">
-              <Nav.Link href="/cart">
-                <i className="fas fa-shopping-cart" />
-                CART
-              </Nav.Link>
+              <LinkContainer to="/cart">
+                <Nav.Link>
+                  <i className="fas fa-shopping-cart" />
+                  CART
+                </Nav.Link>
+              </LinkContainer>
 
               {userInfo ? (
                 <NavDropdown
@@ -41,10 +45,12 @@ function Header() {
                   </NavDropdown.Item>
                 </NavDropdown>
               ) : (
-                <Nav.Link href="/login">
-                  <i className="fas fa-user-tie" />
-                  LOGIN
-                </Nav.Link>
+                <LinkContainer to="/login">
+                  <Nav.Link>
+                    <i className="fas fa-user-tie" />
+                    LOGIN
+                  </Nav.Link>
+                </LinkContainer>
               )}
             </Nav>
           </Navbar.Collapse>
