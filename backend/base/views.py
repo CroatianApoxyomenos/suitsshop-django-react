@@ -7,10 +7,11 @@ from rest_framework.views import APIView
 from .serializers import UserSerializer, UserSerializerWithToken
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
-from .models import Product, CustomUser
-from .serializers import ProductSerializer
+from .models import Product, CustomUser, Order, OrderItem, ShippingAddress
+from .serializers import ProductSerializer, OrderSerializer
 from jsonschema import validate
 import jsonschema
+from datetime import datetime
 # Create your views here.
 
 
@@ -127,3 +128,86 @@ class ProductViewSet(APIView):
             return Response(serializer.data)
         except:
             return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class OrderViewSet(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        data = request.data
+
+        order_items = data['orderItems']
+
+        if order_items and len(order_items) == 0:
+            return Response({'detail':'No order items'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+
+            #1 Create Order
+            order = Order.objects.create(
+                user=user,
+                payment_method=data['paymentMethod'],
+                shipping_price=data['shippingPrice'],
+                total_price=data['totalPrice']
+            )
+
+            #2 Create shipping address
+            shipping = ShippingAddress.objects.create(
+                user=user,
+                order=order,
+                address=data['shippingAddress']['address'],
+                city=data['shippingAddress']['city'],
+                postal_code=data['shippingAddress']['postalCode'],
+                country=data['shippingAddress']['country']
+            )
+
+            #3 Create order items and set order to orderItem relationship
+            for i in order_items:
+                product = Product.objects.get(id=i['product'])
+
+                item = OrderItem.objects.create(
+                    name=product.name,
+                    product=product,
+                    order=order,
+                    quantity=i['qty'],
+                    image=product.image.url
+                )
+
+            #4 Update stock
+                product.count_in_stock -= item.quantity
+                product.save()
+
+            serializer = OrderSerializer(order, many=False)
+            return Response(serializer.data)
+    
+    def get(self, request, pk):
+        user = request.user
+
+        try:
+            order = Order.objects.get(id=pk)
+            if user.is_staff or order.user == user:
+                serializer = OrderSerializer(order, many=False)
+                return Response(serializer.data)
+            else:
+                Response({'detail':'Not authorized to view this order'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except:
+            return Response({'detail':'Order does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        order = Order.objects.get(id=pk)
+
+        order.is_paid = True
+        order.paid_at = datetime.now()
+        order.save()
+        
+        return Response('Order was paid')
+
+class OrderDetailsViewSet(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        orders = user.order_set.all()
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data)

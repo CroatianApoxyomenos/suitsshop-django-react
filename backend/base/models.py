@@ -44,17 +44,11 @@ class Order(models.Model):
     def __str__(self):
         return str(self.created_at)
 
-    def save(self, *args, **kwargs):
-        is_new = self.pk is None
-        super().save(*args, **kwargs)
-        if is_new:
-            self.total_price = sum(item.total_price for item in self.orderitem_set.all())
-            self.save()
-
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    name = models.CharField(max_length=200, null=True, blank=True)
     quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)])
     image = models.CharField(max_length=255)
     total_price = models.DecimalField(max_digits=7, decimal_places=2, default=0)

@@ -10,7 +10,7 @@ function Product({ product }) {
       </Link>
 
       <Card.Body>
-        <Link to={`/products/${product.id}`}>
+        <Link to={`/products/${product.id}`} className="link-color-inherit">
           <Card.Title as="div">
             <strong>{product.name}</strong>
           </Card.Title>
